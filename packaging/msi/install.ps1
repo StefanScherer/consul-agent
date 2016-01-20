@@ -30,7 +30,7 @@ $WebClient = New-Object System.Net.WebClient
 
 # Download consul.exe
 Write-Host Downloading Consul
-$WebClient.DownloadFile("https://releases.hashicorp.com/consul/$env:CONSUL_VERSION/consul_$($env:CONSUL_VERSION)_windows_386.zip", "$env:APPVEYOR_BUILD_FOLDER\temp\consul.zip")
+$WebClient.DownloadFile("https://releases.hashicorp.com/consul/$env:CONSUL_VERSION/consul_$($env:CONSUL_VERSION)_windows_amd64.zip", "$env:APPVEYOR_BUILD_FOLDER\temp\consul.zip")
 
 # Download web-ui for consul.exe
 Write-Host Downloading Consul Web UI
