@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+
+  <Fragment>
+    <ComponentGroup Id="service">
+      <Component Id="nssm_component" Guid="*" Directory="INSTALLDIR">
+        <File Id="nssm" KeyPath="yes" Source="temp\nssm-$(env.NSSM_VERSION)\win64\nssm.exe" />
+
+        <RemoveFile Id="PurgeLogfiles" Directory="LOGDIR" Name="$(env.PACKAGE_NAME)*" On="uninstall" />
+
+        <ServiceInstall Id="ServiceInstall"
+          Account="LocalSystem"
+          ErrorControl="normal"
+          Name="$(env.PACKAGE_NAME)"
+          Start="auto"
+          Type="ownProcess"
+          Vital="yes"
+          Description="$(env.PACKAGE_DESCRIPTION)"
+          DisplayName="$(env.PACKAGE_NAME)">
+          <ServiceConfig OnInstall="yes" OnReinstall="yes" DelayedAutoStart="no" />
+        </ServiceInstall>
+
+        <ServiceControl Id="ControlService"
+          Name="$(env.PACKAGE_NAME)"
+          Wait="yes"
+          Start="install"
+          Stop="both"
+          Remove="uninstall"
+        />
+
+        <ServiceControl Id="RestartDnscacheService" Name="Dnscache" Stop="both" Start="both" Wait="yes" />
+        <RegistryKey Root="HKLM" Key="SYSTEM\CurrentControlSet\Services\Dnscache\Parameters">
+          <!-- Ensure negative DNS resolutions are not cached -->
+          <RegistryValue Name="MaxNegativeCacheTtl" Value="0" Type="integer" />
+        </RegistryKey>
+
+        <RegistryKey Root="HKLM" Key="SYSTEM\CurrentControlSet\Services\$(env.PACKAGE_NAME)">
+          <RegistryKey Key="Parameters">
+            <RegistryValue Name="AppDirectory" Value="[INSTALLDIR]" Type="expandable" />
+            <RegistryValue Name="Application" Value="[INSTALLDIR]consul.exe" Type="expandable" />
+            <RegistryValue Name="AppParameters" Value='agent "-config-file=[CONFIGDIR]consul.json." "-ui-dir=[INSTALLDIR]ui"' Type="expandable" />
+
+            <RegistryValue Name="AppEnvironmentExtra" Type="multiString">
+              <MultiStringValue>GOMAXPROCS=2</MultiStringValue>
+            </RegistryValue>
+
+            <RegistryValue Name="AppStdout" Value="[LOGDIR]$(env.PACKAGE_NAME).log" Type="expandable" />
+            <RegistryValue Name="AppStderr" Value="[LOGDIR]$(env.PACKAGE_NAME).log" Type="expandable" />
+            <RegistryValue Name="AppRotateFiles" Value="1" Type="integer" />
+            <RegistryValue Name="AppRotateOnline" Value="1" Type="integer" />
+
+            <!-- Rotate after 100 MB -->
+            <RegistryValue Name="AppRotateBytes" Value="104857600" Type="integer" />
+            <RegistryValue Name="AppStdoutCopyAndTruncate" Value="1" Type="integer" />
+            <RegistryValue Name="AppStderrCopyAndTruncate" Value="1" Type="integer" />
+            <RegistryValue Name="AppRotateDelay" Value="1000" Type="integer" />
+
+            <RegistryKey Key="AppExit">
+              <RegistryValue Type="string" Value="Restart" />
+            </RegistryKey>
+          </RegistryKey>
+        </RegistryKey>
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+</Wix>

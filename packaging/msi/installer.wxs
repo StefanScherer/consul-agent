@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension"
+     xmlns:fire="http://schemas.microsoft.com/wix/FirewallExtension"
+     xmlns:SystemTools="http://schemas.appsecinc.com/wix/SystemToolsExtension">
+
+  <Product Id="*"
+    UpgradeCode="$(env.UPGRADE_CODE)"
+    Language='1033'
+    Codepage='1252'
+    Version='$(env.MSI_VERSION)'
+    Name="$(env.PACKAGE_NAME) $(env.MSI_VERSION)"
+    Manufacturer='$(env.AUTHOR_NAME)'>
+
+    <Package Id='*'
+      Description="$(env.PACKAGE_DESCRIPTION)"
+      Comments='$(env.AUTHOR_NAME)'
+      Manufacturer='$(env.AUTHOR_NAME)'
+      InstallScope='perMachine'
+      InstallerVersion='200'
+      Compressed='yes'
+      Languages='1033'
+      SummaryCodepage='1252'
+      Platform='x64'
+    />
+
+    <MajorUpgrade
+      DowngradeErrorMessage="A newer version of $(env.PACKAGE_NAME) is already installed."
+      AllowSameVersionUpgrades="yes"
+      IgnoreRemoveFailure="yes"
+      MigrateFeatures="yes"
+      Schedule="afterInstallInitialize"
+    />
+
+    <Media Id='1' EmbedCab='yes' Cabinet="main.cab" />
+
+    <WixVariable Id="WixUILicenseRtf" Value="packaging\msi\resource\LICENSE.rtf" />
+    <!--
+    <WixVariable Id="WixUIBannerBmp" Value="packaging\msi\resource\images\msi-banner.bmp" />
+    <WixVariable Id="WixUIDialogBmp" Value="packaging\msi\resource\images\msi-welcome.bmp" />
+    -->
+
+    <Icon Id="icon.ico" SourceFile="packaging\msi\resource\images\logo.ico"/>
+    <Property Id="ARPPRODUCTICON" Value="icon.ico" />
+    <Property Id="ARPHELPLINK" Value="https://groups.google.com/forum/#!forum/consul-tool" />
+    <Property Id="ARPURLINFOABOUT" Value="https://www.consul.io" />
+
+    <Property Id="MSIRESTARTMANAGERCONTROL" Value="Disable" />
+    <Property Id="MSIUSEREALADMINDETECTION" Value="1" />
+
+    <Directory Id='TARGETDIR' Name='SourceDir'>
+      <Directory Id='ProgramFiles64Folder' Name='PFiles'>
+        <Directory Id='CompanyFolder' Name='$(env.COMPANY_FOLDER)'>
+          <Directory Id='ProductFolder' Name='$(env.PRODUCT_FOLDER)'>
+            <Directory Id='INSTALLDIR' Name='$(env.PACKAGE_NAME)'>
+            </Directory>
+          </Directory>
+        </Directory>
+      </Directory>
+      <Directory Id="CommonAppDataFolder">
+        <Directory Id="CompanyAppDataFolder" Name="$(env.COMPANY_FOLDER)">
+          <Directory Id="ProductAppDataFolder" Name="$(env.PRODUCT_FOLDER)">
+            <Directory Id="CONFIGDIR" Name="config" />
+            <Directory Id="LOGDIR" Name="log" />
+            <Directory Id="ConsulAppDataFolder" Name="consul-agent">
+              <Directory Id="DATADIR" Name="data" />
+            </Directory>
+          </Directory>
+        </Directory>
+      </Directory>
+    </Directory>
+
+    <Property Id="DATADIR">
+      <RegistrySearch Root="HKLM" Key="SOFTWARE\$(env.COMPANY_FOLDER)\$(env.PRODUCT_FOLDER)\consul-agent" Type="raw" Id="DATADIR_REGSEARCH" Name="Datadir" />
+    </Property>
+
+    <Property Id='STRING_REPLACE_FROM' Value="\"/>
+    <Property Id='STRING_REPLACE_TO' Value='\\'/>
+
+    <Binary Id="StringTools" SourceFile="temp\msiext-1.5\CustomActions\StringTools.dll" />
+
+    <CustomAction Id="SetSTRING_VALUE_FROM" Return="check" Execute="immediate" Property="STRING_VALUE_FROM" Value="[DATADIR]"/>
+    <CustomAction Id="String_Replace" BinaryKey="StringTools" DllEntry="String_Replace" Execute="immediate" Return="check" />
+
+    <InstallExecuteSequence>
+      <Custom Action="SetSTRING_VALUE_FROM" After="CreateFolders">STRING_VALUE_FROM=""</Custom>
+      <Custom Action="String_Replace" After="SetSTRING_VALUE_FROM">String_Replace=""</Custom>
+    </InstallExecuteSequence>
+
+    <Feature Id='Complete' Level='1'>
+      <ComponentGroupRef Id='service' />
+
+      <ComponentGroupRef Id='MainComponentGroup' />
+
+      <Component Id="consul_component" Guid="d91617a7-2bc2-4d76-ad72-b3bc2d3bab74" Directory="INSTALLDIR">
+        <File Id="consul" KeyPath="yes" Source="temp\consul.exe" />
+      </Component>
+
+      <ComponentGroupRef Id='firewallExceptionsGroup' />
+
+      <Component Id="consul_config_component" Guid="*" Directory="CONFIGDIR">
+        <File Id="consul_config" KeyPath="yes" Source="packaging\msi\resource\consul.json" />
+        <SystemTools:TemplateFile Id="consul_config_process_component" Source="[#consul_config]" Target="[CONFIGDIR]consul.json" ExecuteOnInstall="yes">
+          <SystemTools:TemplateFileProperty Id="DATADIR_property" Name="DATADIR" Value="[STRING_VALUE_TO]" />
+          <SystemTools:TemplateFileProperty Id="LOGDIR_property" Name="LOGDIR" Value="[LOGDIR]" />
+        </SystemTools:TemplateFile>
+      </Component>
+
+      <Component Id="CreateConfigFolder" Guid="51b15206-3c02-4f28-80d3-8ed822ab01fb" Directory="CONFIGDIR">
+        <CreateFolder />
+      </Component>
+
+      <Component Id="CreateLogFolder" Guid="941a06ab-4916-4374-868c-ce39dac8580c" Directory="LOGDIR">
+        <CreateFolder />
+      </Component>
+
+      <Component Id="CreateDataFolder" Guid="8de96d8d-a8fd-4f6b-ba21-7c6f20e0a71a" Directory="DATADIR">
+        <RegistryValue Root="HKLM" Key="SOFTWARE\$(env.COMPANY_FOLDER)\$(env.PRODUCT_FOLDER)\consul-agent" Name="Datadir" Type="string" Value="[DATADIR]" KeyPath="yes" />
+        <util:RemoveFolderEx On="uninstall" Property="DATADIR" />
+        <CreateFolder />
+      </Component>
+
+      <!-- Workaround for RemoveFolderEx preventing removal of the parent folder. See: http://lists.project-wombat.org/pipermail/wix-users-wixtoolset.org/2015-November/000785.html -->
+      <Component Id="RemoveConsulAppDataFolder" Guid="49616e84-c25b-4fa4-adba-6b71fd80d190" Directory="ConsulAppDataFolder">
+        <RemoveFolder On="uninstall" Id="ConsulAppDataFolder" />
+      </Component>
+    </Feature>
+
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
+
+    <UIRef Id="WixUI" />
+
+  </Product>
+</Wix>

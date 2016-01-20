@@ -1,0 +1,32 @@
+{
+  "name": "consul-agent",
+  "version": "0.5.2",
+  "description": "Consul is a tool for service discovery and configuration.",
+  "author": {
+    "name": "HashiCorp",
+    "url": "https://www.consul.io"
+  },
+  "license": "Mozilla Public License, version 2.0",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/StefanScherer/consul-agent.git"
+  },
+  "packaging": {
+    "firewallExceptions": [
+      {
+        "name": "Consul Serf LAN",
+        "protocol": "tcp",
+        "port": "8301"
+      },
+      {
+        "name": "Consul Serf LAN UDP",
+        "protocol": "udp",
+        "port": "8301"
+      }
+    ],
+    "msi": {
+      "upgradeCode": "7209a853-f010-49b7-aee6-2c40fb9f015e",
+      "firewallExceptionsGuid": "f647f891-a35a-4dd9-ad71-c59fef55f7e2"
+    }
+  }
+}

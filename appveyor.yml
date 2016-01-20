@@ -1,0 +1,20 @@
+version: "0.5.2.{build}"
+
+environment:
+  NSSM_VERSION: "2.24-23-gfb96938"
+
+install:
+  - ps: packaging\msi\install.ps1
+
+build_script:
+  - ps: packaging\msi\build.ps1
+
+test: off
+
+artifacts:
+- path: output/*.msi
+  name: Release
+deploy:
+- provider: GitHub
+  auth_token:
+    secure: FA0xahKGq6AVJEOd1Oen0xPbbM3C9qETfDj69A93xeVyLDlQazwyJa1Si6fn8OMo
