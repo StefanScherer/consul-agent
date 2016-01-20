@@ -30,6 +30,7 @@ AppVeyor then builds the MSI again and creates a GitHub release.
 
 ## Future work
 
+* Add integration tests by installing the MSI and running eg. serverspec tests
 * Add example for code signing to nssm.exe, consul.exe and as well the MSI package
 * Add better banner images and logos
 
