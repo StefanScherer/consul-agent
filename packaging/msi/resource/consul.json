@@ -1,6 +1,7 @@
 {
   "server": true,
   "bootstrap_expect": 1,
+  "advertise_addr": "127.0.0.1",
   "data_dir": "[DATADIR]",
   "ports": {
     "dns": 53
