@@ -15,6 +15,24 @@ The MSI installer will install:
 
 The MSI is built at AppVeyor CI, so have a look at the `appveyor.yml` for details.
 
+## Deployment
+
+AppVeyor builds the MSI, but deploys it only if is a tag push.
+
+So releasing a new MSI looks like this.
+
+1. Editing the source tree,
+2. `git push` to build (and test in the future)
+3. `git tag 0.5.2`
+4. `git push --tags`
+
+AppVeyor then builds the MSI again and creates a GitHub release.
+
+## Future work
+
+* Add example for code signing to nssm.exe, consul.exe and as well the MSI package
+* Add better banner images and logos
+
 ## License
 
 This project is licensed under the MIT license. See the [LICENSE](./LICENSE) file for more info.
