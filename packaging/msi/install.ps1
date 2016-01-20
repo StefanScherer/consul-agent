@@ -40,7 +40,7 @@ $WebClient.DownloadFile("https://releases.hashicorp.com/consul/$env:CONSUL_VERSI
 Unzip "$env:APPVEYOR_BUILD_FOLDER\temp\consul.zip" "$env:APPVEYOR_BUILD_FOLDER\temp\"
 
 # Unpack web_ui.zip
-Unzip "$env:APPVEYOR_BUILD_FOLDER\temp\web_ui.zip" "$env:APPVEYOR_BUILD_FOLDER\temp\"
+Unzip "$env:APPVEYOR_BUILD_FOLDER\temp\web_ui.zip" "$env:APPVEYOR_BUILD_FOLDER\temp\dist\"
 
 # Download nssm.zip
 Write-Host Downloading NSSM ZIP

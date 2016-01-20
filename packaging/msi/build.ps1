@@ -52,7 +52,7 @@ $content_dir = "temp\content"
 mkdir $content_dir
 
 # Copy web-ui
-robocopy temp $content_dir\ui /COPYALL /S /NFL /NDL /NS /NC /NJH /NJS
+robocopy temp\dist $content_dir\ui /COPYALL /S /NFL /NDL /NS /NC /NJH /NJS
 
 # Extract values from package.json
 $packageJson = (Get-Content package.json) -join "`n" | ConvertFrom-Json
