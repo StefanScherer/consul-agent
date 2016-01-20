@@ -1,6 +1,6 @@
 {
   "name": "consul-agent",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Consul is a tool for service discovery and configuration.",
   "author": {
     "name": "HashiCorp",

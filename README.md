@@ -23,7 +23,7 @@ So releasing a new MSI looks like this.
 
 1. Editing the source tree,
 2. `git push` to build (and test in the future)
-3. `git tag 0.6.1`
+3. `git tag 0.6.2`
 4. `git push --tags`
 
 AppVeyor then builds the MSI again and creates a GitHub release.
