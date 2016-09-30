@@ -16,7 +16,7 @@ install:
 build_script:
   - ps: packaging\msi\build.ps1
 
-test:
+test_script:
   - SET PATH=C:\Ruby%ruby_version%\bin;%PATH%
   - ruby --version
   - gem --version
