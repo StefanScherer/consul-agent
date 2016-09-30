@@ -11,7 +11,6 @@ cd packaging\msi\test
 bundle config --local path vendor/bundle
 bundle install
 
-dir C:\projects\consul-agent\packaging\msi\test\vendor\bundle\ruby
 Write-Host "Patching specinfra for AppVeyor"
 (Get-Content vendor\bundle\ruby\2.2.0\gems\specinfra-2.63.1\lib\specinfra\backend\cmd.rb) |
   Foreach-Object {$_ -replace '-encodedCommand', '-NoProfile -encodedCommand'} |
