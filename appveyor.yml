@@ -8,6 +8,7 @@ branches:
 
 environment:
   NSSM_VERSION: "2.24-23-gfb96938"
+  RUBY_VERSION: "22-x64"   # https://www.appveyor.com/docs/installed-software#ruby
 
 install:
   - ps: packaging\msi\install.ps1
@@ -15,7 +16,12 @@ install:
 build_script:
   - ps: packaging\msi\build.ps1
 
-test: off
+test:
+  - SET PATH=C:\Ruby%ruby_version%\bin;%PATH%
+  - ruby --version
+  - gem --version
+  - bundler --version
+  - ps: packaging\msi\test.ps1
 
 artifacts:
 - path: output/*.msi
