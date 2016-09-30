@@ -8,11 +8,11 @@ describe "Program Files" do
     it { should be_directory }
   end
 
-  describe file("#{ENV['ProgramFiles']}/HashiCorp/Consul/consul.exe") do
+  describe file("#{ENV['ProgramFiles']}/HashiCorp/Consul/consul-agent/consul.exe") do
     it { should exist }
   end
 
-  describe file("#{ENV['ProgramFiles']}/HashiCorp/Consul/nssm.exe") do
+  describe file("#{ENV['ProgramFiles']}/HashiCorp/Consul/consul-agent/nssm.exe") do
     it { should exist }
   end
 end

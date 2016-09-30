@@ -4,12 +4,12 @@ set :backend, :cmd
 set :os, :family => 'windows'
 
 describe "MSI package" do
-  describe package("Consul #{ENV['MSI_VERSION']}") do
+  describe package("consul-agent #{ENV['MSI_VERSION']}") do
     it { should be_installed}
   end
 
   describe "Service" do
-    describe service("Consul") do
+    describe service("consul-agent") do
       it { should be_running }
       it { should have_start_mode("Automatic") }
     end
